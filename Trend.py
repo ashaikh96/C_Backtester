@@ -18,12 +18,14 @@ def determine_positions(price_data):
     positions = pd.DataFrame()
     start = 0
     dates = price_data.index.values
-    for i in range(10,len(price_data.index.values)):
-        if price_data['price'].iloc[i] > price_data['price'].iloc[i-10]:
-            positions.loc[dates[i],'position'] = 1
-        else:
+    for i in range(0,len(price_data.index.values)):
+        try:
+            if price_data['price'].iloc[i] > price_data['price'].iloc[i-9]:
+                positions.loc[dates[i],'position'] = 1
+            else:
+                positions.loc[dates[i],'position'] = 0
+        except:
             positions.loc[dates[i],'position'] = 0
-            
     return positions
     
     
@@ -35,14 +37,14 @@ def backtest(positions, price_data):
     last_day = positions.index.values[-1]
     total_return = (price_data.loc[last_day,'price']/price_data.loc[first_day,'price'])-1
     print(total_return)
-    print(price_data)
-    temp_price_data= price_data.iloc[9::]
-    print('here')
     #################iloc causing the problems
-    for day in range(0,len(positions.index.values)-1):
+    base_Nav.loc[price_data.index.values[0],'level'] = 100
+    for day in range(1,len(price_data.index.values)):
         #update value 
-        value = value + temp_price_data['return'].iloc[day]*value
-        base_Nav.loc[positions.index.values[day+1],'level'] = value
+        #print(value)
+        #print(price_data['return'].iloc[day])
+        value = value + (price_data['return'].iloc[day])*value
+        base_Nav.loc[price_data.index.values[day],'level'] = value
         
     return base_Nav
     
